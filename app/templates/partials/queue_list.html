@@ -1,0 +1,87 @@
+<!-- Queue List - Prioritized lead cards -->
+{% if queue %}
+    {% for lead in queue %}
+    <div class="lead-card {% if lead.score >= 70 %}high-priority{% elif lead.score >= 40 %}medium-priority{% else %}low-priority{% endif %}">
+        <div class="d-flex align-items-start gap-3">
+            <!-- Score Badge -->
+            <div class="score-badge {% if lead.score >= 70 %}score-high{% elif lead.score >= 40 %}score-medium{% else %}score-low{% endif %}">
+                {{ lead.score }}
+            </div>
+
+            <!-- Lead Info -->
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">{{ lead.company_name }}</h6>
+                        {% if lead.contact_name %}
+                        <small class="text-muted">{{ lead.contact_name }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="text-end">
+                        <span class="queue-position">#{{ lead.queue_position + 1 }}</span>
+                    </div>
+                </div>
+
+                <div class="mt-2 d-flex flex-wrap gap-2 align-items-center">
+                    <!-- Client Tier -->
+                    <span class="tier-badge tier-{{ lead.client_tier }}">
+                        {{ lead.client_tier }}
+                    </span>
+
+                    <!-- Status -->
+                    <span class="status-badge bg-light text-dark">
+                        {{ lead.status }}
+                    </span>
+
+                    <!-- Value -->
+                    {% if lead.estimated_value > 0 %}
+                    <span class="text-success fw-medium">
+                        ${{ "{:,.0f}".format(lead.estimated_value) }}
+                    </span>
+                    {% endif %}
+
+                    <!-- Urgency -->
+                    {% if lead.urgency_level >= 4 %}
+                    <span class="badge bg-danger">Urgent</span>
+                    {% endif %}
+
+                    <!-- Budget Confirmed -->
+                    {% if lead.budget_confirmed %}
+                    <span class="badge bg-success">Budget OK</span>
+                    {% endif %}
+                </div>
+
+                {% if lead.project_description %}
+                <p class="mt-2 mb-0 small text-muted">
+                    {{ lead.project_description[:100] }}{% if lead.project_description|length > 100 %}...{% endif %}
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Actions -->
+            <div class="btn-group-vertical btn-group-sm">
+                <button class="btn btn-outline-primary btn-sm"
+                        hx-put="/leads/{{ lead.id }}/reorder?position=0"
+                        hx-target="#queue-list"
+                        hx-swap="innerHTML"
+                        title="Move to top">
+                    &uarr;
+                </button>
+                <button class="btn btn-outline-danger btn-sm"
+                        hx-delete="/leads/{{ lead.id }}"
+                        hx-target="#queue-list"
+                        hx-swap="innerHTML"
+                        hx-confirm="Delete this lead?"
+                        title="Delete">
+                    &times;
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="text-center text-muted py-5">
+        <p class="mb-0">No leads in queue</p>
+        <small>Add a lead using the form</small>
+    </div>
+{% endif %}

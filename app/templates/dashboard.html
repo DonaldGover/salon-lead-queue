@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Salon Lead Queue{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Stats Panel -->
+    <div class="col-12">
+        <div id="stats-panel" hx-get="/partials/stats" hx-trigger="every 30s">
+            {% include "partials/stats_panel.html" %}
+        </div>
+    </div>
+
+    <!-- Lead Form -->
+    <div class="col-lg-4">
+        <div class="form-section">
+            <h5 class="mb-3">Add New Lead</h5>
+            <form hx-post="/leads"
+                  hx-target="#queue-list"
+                  hx-swap="innerHTML"
+                  hx-on::after-request="this.reset(); htmx.trigger('#stats-panel', 'refresh');">
+
+                <div class="mb-3">
+                    <label class="form-label">Company Name *</label>
+                    <input type="text" name="company_name" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Contact Name</label>
+                    <input type="text" name="contact_name" class="form-control">
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" name="phone" class="form-control">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Project Description</label>
+                    <textarea name="project_description" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Estimated Value ($)</label>
+                        <input type="number" name="estimated_value" class="form-control" value="0" min="0">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Urgency (1-5)</label>
+                        <select name="urgency_level" class="form-select">
+                            <option value="1">1 - Low</option>
+                            <option value="2">2 - Normal</option>
+                            <option value="3" selected>3 - Moderate</option>
+                            <option value="4">4 - High</option>
+                            <option value="5">5 - Critical</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Client Tier</label>
+                        <select name="client_tier" class="form-select">
+                            <option value="new" selected>New Client</option>
+                            <option value="existing">Existing Client</option>
+                            <option value="strategic">Strategic Account</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Source</label>
+                        <input type="text" name="source" class="form-control" placeholder="referral, website...">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" name="budget_confirmed" class="form-check-input" id="budgetCheck">
+                        <label class="form-check-label" for="budgetCheck">Budget Confirmed</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" name="strategic_fit" class="form-check-input" id="strategicCheck">
+                        <label class="form-check-label" for="strategicCheck">Strategic Fit</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    Add Lead
+                </button>
+            </form>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="form-section mt-4">
+            <h5 class="mb-3">Quick Actions</h5>
+            <button class="btn btn-outline-secondary w-100 mb-2"
+                    hx-post="/queue/reprioritize"
+                    hx-target="#queue-list"
+                    hx-swap="innerHTML"
+                    hx-confirm="Reprioritize queue by score? This will override manual ordering.">
+                Auto-Prioritize Queue
+            </button>
+            <button class="btn btn-outline-secondary w-100"
+                    hx-post="/queue/recalculate"
+                    hx-target="#queue-list"
+                    hx-swap="innerHTML">
+                Recalculate Scores
+            </button>
+        </div>
+    </div>
+
+    <!-- Queue List -->
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Lead Queue</h5>
+            <span class="htmx-indicator">
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                Loading...
+            </span>
+        </div>
+
+        <div id="queue-list" hx-get="/partials/queue" hx-trigger="every 30s">
+            {% include "partials/queue_list.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle form checkbox values (send true/false instead of on/undefined)
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('htmx:configRequest', (e) => {
+            const formData = e.detail.parameters;
+            formData.budget_confirmed = form.querySelector('#budgetCheck')?.checked || false;
+            formData.strategic_fit = form.querySelector('#strategicCheck')?.checked || false;
+        });
+    });
+</script>
+{% endblock %}

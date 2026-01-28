@@ -1,0 +1,52 @@
+<!-- Stats Panel - Queue metrics overview -->
+<div class="row g-3">
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-value">{{ stats.active_leads }}</div>
+            <div class="stat-label">Active Leads</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-value">${{ "{:,.0f}".format(stats.total_value) }}</div>
+            <div class="stat-label">Pipeline Value</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-value">{{ stats.avg_score }}</div>
+            <div class="stat-label">Avg Score</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-value text-danger">{{ stats.high_priority_count }}</div>
+            <div class="stat-label">High Priority</div>
+        </div>
+    </div>
+</div>
+
+<!-- Status breakdown -->
+<div class="row g-3 mt-2">
+    <div class="col-12">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+                <div>
+                    <span class="badge bg-secondary">New: {{ stats.by_status.get('new', 0) }}</span>
+                </div>
+                <div>
+                    <span class="badge bg-info">Contacted: {{ stats.by_status.get('contacted', 0) }}</span>
+                </div>
+                <div>
+                    <span class="badge bg-primary">Qualified: {{ stats.by_status.get('qualified', 0) }}</span>
+                </div>
+                <div>
+                    <span class="badge bg-warning">Proposal: {{ stats.by_status.get('proposal', 0) }}</span>
+                </div>
+                <div>
+                    <span class="badge bg-success">Won: {{ stats.by_status.get('won', 0) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
