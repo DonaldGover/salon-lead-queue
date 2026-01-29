@@ -169,5 +169,5 @@ WantedBy=multi-user.target
 MIT License - feel free to use this project for any purpose.
 
 ## Author
-
+Rashad
 Built with FastAPI and PostgreSQL.
