@@ -1,0 +1,29 @@
+{% for service in services %}
+<div class="service-item">
+    <div>
+        <div class="service-name">
+            {{ service.name }}
+            {% if service.tags %}
+                {% for tag in service.tags.split(',') %}
+                    <span class="tag-badge {{ tag.strip() }}">{{ tag.strip() }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="service-meta">
+            <span class="service-duration">{{ service.default_duration_min }} min</span>
+            {% if not service.bookable %}
+                <span class="tag-badge">Non-bookable</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="text-end">
+        <div class="service-price">${{ "%.2f"|format(service.default_price_usd) }}</div>
+    </div>
+</div>
+{% endfor %}
+
+{% if not services %}
+<div class="text-center py-4 text-muted">
+    No services found.
+</div>
+{% endif %}

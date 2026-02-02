@@ -122,3 +122,117 @@ class MessageResponse(BaseModel):
     """Generic success message."""
     message: str
     success: bool = True
+
+
+# =============================================================================
+# SERVICE CATALOG SCHEMAS
+# =============================================================================
+
+CATEGORY_SLUGS = Literal[
+    "hair", "lashes_brows", "waxing", "nails",
+    "massage_body", "skincare_facials", "makeup", "consultation_admin"
+]
+
+
+class CategoryCreate(BaseModel):
+    """Input schema for creating a category."""
+    slug: str = Field(..., min_length=1, max_length=50, pattern=r"^[a-z_]+$")
+    name: str = Field(..., min_length=1, max_length=100)
+    sort_order: int = Field(default=0, ge=0)
+    is_bookable_default: bool = True
+    color_tag: str = Field(default="#6366f1", pattern=r"^#[0-9a-fA-F]{6}$")
+
+
+class CategoryResponse(BaseModel):
+    """Output schema for category data."""
+    id: str
+    slug: str
+    name: str
+    sort_order: int
+    is_bookable_default: bool
+    color_tag: str
+
+    class Config:
+        from_attributes = True
+
+
+class ServiceCreate(BaseModel):
+    """Input schema for creating a service."""
+    category_id: str
+    name: str = Field(..., min_length=1, max_length=200)
+    default_duration_min: int = Field(..., ge=0, le=480)
+    default_price_usd: float = Field(..., ge=0)
+    bookable: bool = True
+    active: bool = True
+    tags: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class ServiceUpdate(BaseModel):
+    """Input schema for updating a service."""
+    category_id: Optional[str] = None
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
+    default_duration_min: Optional[int] = Field(None, ge=0, le=480)
+    default_price_usd: Optional[float] = Field(None, ge=0)
+    bookable: Optional[bool] = None
+    active: Optional[bool] = None
+    tags: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class ServiceResponse(BaseModel):
+    """Output schema for service data."""
+    id: str
+    category_id: str
+    category_slug: Optional[str] = None
+    category_name: Optional[str] = None
+    name: str
+    default_duration_min: int
+    default_price_usd: float
+    bookable: bool
+    active: bool
+    tags: Optional[str] = None
+    notes: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ServiceListResponse(BaseModel):
+    """List of services with optional category grouping."""
+    services: List[ServiceResponse]
+    total: int
+    by_category: Optional[dict] = None
+
+
+class StylistSettingCreate(BaseModel):
+    """Input schema for stylist service override."""
+    stylist_id: str
+    service_id: str
+    enabled: bool = True
+    custom_price_usd: Optional[float] = Field(None, ge=0)
+
+
+class StylistSettingResponse(BaseModel):
+    """Output schema for stylist service setting."""
+    id: str
+    stylist_id: str
+    service_id: str
+    enabled: bool
+    custom_price_usd: Optional[float] = None
+    effective_price: Optional[float] = None
+
+    class Config:
+        from_attributes = True
+
+
+class CatalogStats(BaseModel):
+    """Service catalog statistics."""
+    total_services: int
+    active_services: int
+    bookable_services: int
+    by_category: dict
+    price_range: dict
+    duration_range: dict
