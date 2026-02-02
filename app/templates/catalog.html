@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Salon - Service Catalog{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Service Catalog</h2>
+            <button class="btn btn-primary"
+                    hx-post="/services/seed"
+                    hx-swap="none"
+                    hx-on::after-request="window.location.reload()">
+                Seed Catalog
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row mb-4" id="catalog-stats">
+    <div class="col-md-3 col-6 mb-3">
+        <div class="stat-card text-center">
+            <div class="stat-value">{{ catalog_stats.total_services }}</div>
+            <div class="stat-label">Total Services</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="stat-card text-center">
+            <div class="stat-value">{{ catalog_stats.active_services }}</div>
+            <div class="stat-label">Active Services</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="stat-card text-center">
+            <div class="stat-value">${{ "%.0f"|format(catalog_stats.price_range.avg) }}</div>
+            <div class="stat-label">Avg Price</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6 mb-3">
+        <div class="stat-card text-center">
+            <div class="stat-value">{{ catalog_stats.duration_range.avg|round|int }} min</div>
+            <div class="stat-label">Avg Duration</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Categories Sidebar -->
+    <div class="col-md-3 mb-4">
+        <h5 class="mb-3">Categories</h5>
+
+        <a href="/catalog" class="text-decoration-none">
+            <div class="category-card mb-2 {% if not active_category %}active{% endif %}"
+                 style="border-left-color: #6b7280;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-medium">All Services</span>
+                    <span class="badge bg-secondary">{{ catalog_stats.total_services }}</span>
+                </div>
+            </div>
+        </a>
+
+        {% for category in categories %}
+        <a href="/catalog?category={{ category.slug }}" class="text-decoration-none">
+            <div class="category-card mb-2 {% if active_category and active_category.slug == category.slug %}active{% endif %}"
+                 style="border-left-color: {{ category.color_tag }};">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-medium">{{ category.name }}</span>
+                    <span class="badge" style="background: {{ category.color_tag }};">
+                        {{ services_by_category[category.slug].count if category.slug in services_by_category else 0 }}
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+
+        <!-- Price Range Info -->
+        <div class="mt-4 p-3 bg-light rounded">
+            <h6 class="mb-2">Price Range</h6>
+            <div class="d-flex justify-content-between">
+                <span class="text-muted">Min:</span>
+                <span class="fw-medium">${{ "%.2f"|format(catalog_stats.price_range.min) }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="text-muted">Max:</span>
+                <span class="fw-medium">${{ "%.2f"|format(catalog_stats.price_range.max) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services List -->
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                {% if active_category %}
+                    {{ active_category.name }}
+                {% else %}
+                    All Services
+                {% endif %}
+            </h5>
+        </div>
+
+        <div id="services-list">
+            {% if filtered_services %}
+                <!-- Single Category View -->
+                {% for service in filtered_services %}
+                <div class="service-item">
+                    <div>
+                        <div class="service-name">
+                            {{ service.name }}
+                            {% if service.tags %}
+                                {% for tag in service.tags.split(',') %}
+                                    <span class="tag-badge {{ tag.strip() }}">{{ tag.strip() }}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="service-meta">
+                            <span class="service-duration">{{ service.default_duration_min }} min</span>
+                            {% if not service.bookable %}
+                                <span class="tag-badge">Non-bookable</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="service-price">${{ "%.2f"|format(service.default_price_usd) }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- All Categories View -->
+                {% for slug, data in services_by_category.items() %}
+                    {% if data.services %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3" style="border-bottom: 2px solid {{ data.category.color_tag }}; padding-bottom: 0.5rem;">
+                            {{ data.category.name }}
+                            <span class="badge" style="background: {{ data.category.color_tag }};">{{ data.count }}</span>
+                        </h6>
+                        {% for service in data.services[:5] %}
+                        <div class="service-item">
+                            <div>
+                                <div class="service-name">
+                                    {{ service.name }}
+                                    {% if service.tags %}
+                                        {% for tag in service.tags.split(',') %}
+                                            <span class="tag-badge {{ tag.strip() }}">{{ tag.strip() }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="service-meta">
+                                    <span class="service-duration">{{ service.default_duration_min }} min</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="service-price">${{ "%.2f"|format(service.default_price_usd) }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if data.count > 5 %}
+                        <a href="/catalog?category={{ slug }}" class="btn btn-sm btn-outline-secondary mt-2">
+                            View all {{ data.count }} services →
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            {% if not filtered_services and not services_by_category %}
+            <div class="text-center py-5 text-muted">
+                <p>No services in catalog yet.</p>
+                <p>Click "Seed Catalog" to import services from the salon data.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

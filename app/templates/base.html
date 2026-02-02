@@ -146,6 +146,76 @@
             opacity: 0;
             transition: opacity 200ms;
         }
+
+        /* Service Catalog Styles */
+        .category-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            cursor: pointer;
+            border-left: 4px solid #6366f1;
+        }
+
+        .category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .category-card.active {
+            background: #f1f5f9;
+        }
+
+        .service-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-item:hover {
+            background: #f8fafc;
+        }
+
+        .service-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .service-meta {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .service-price {
+            font-weight: 600;
+            color: #059669;
+            font-size: 1.1rem;
+        }
+
+        .service-duration {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .tag-badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            background: #e2e8f0;
+            color: #475569;
+            margin-left: 0.25rem;
+        }
+
+        .tag-badge.favorite { background: #fef3c7; color: #92400e; }
+        .tag-badge.men { background: #dbeafe; color: #1e40af; }
+        .tag-badge.kids { background: #fce7f3; color: #9d174d; }
+        .tag-badge.add-on { background: #d1fae5; color: #065f46; }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -157,9 +227,22 @@
             <a class="navbar-brand fw-bold" href="/dashboard">
                 Salon
             </a>
-            <span class="navbar-text text-light">
-                Lead Queue System
-            </span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Lead Queue</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/catalog">Service Catalog</a>
+                    </li>
+                </ul>
+                <span class="navbar-text text-light">
+                    Salon Management System
+                </span>
+            </div>
         </div>
     </nav>
 

@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.templating import Jinja2Templates
 
 from app.database import init_db
-from app.routers import health, leads, queue, dashboard
+from app.routers import health, leads, queue, dashboard, services
 
 
 @asynccontextmanager
@@ -45,6 +45,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(leads.router)
     app.include_router(queue.router)
+    app.include_router(services.router)
     app.include_router(dashboard.router)
 
     return app

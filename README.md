@@ -1,6 +1,6 @@
-# Salon Lead Queue System
+# Salon Lead Queue + Service Catalog System
 
-A production-ready business lead management and prioritization API built with FastAPI, PostgreSQL, and HTMX.
+A production-ready salon management API featuring business lead prioritization and a complete service catalog. Built with FastAPI, PostgreSQL, and HTMX.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-green.svg)
@@ -9,12 +9,23 @@ A production-ready business lead management and prioritization API built with Fa
 
 ## Features
 
+### Lead Queue Management
 - **Smart Lead Scoring** - Weighted algorithm calculates priority based on value, urgency, and client relationship
 - **Priority Queue Management** - Auto-sort or manual drag-and-drop reordering
-- **RESTful API** - Full CRUD operations with OpenAPI documentation
-- **Real-time Dashboard** - HTMX-powered interface with live updates
 - **Activity Audit Trail** - Complete history of all changes and interactions
 - **Soft Delete** - Data preservation for compliance and recovery
+
+### Service Catalog (NEW)
+- **Master Service Catalog** - 100+ salon services across 8 categories
+- **Category Organization** - Hair, Lashes & Brows, Waxing, Nails, Massage & Body, Skincare & Facials, Makeup, Admin
+- **Price Management** - Default pricing with stylist override capability
+- **Duration Tracking** - Service time estimates for scheduling
+- **Tag System** - Filter by favorites, men's services, kids services, add-ons
+
+### API & Dashboard
+- **RESTful API** - Full CRUD operations with OpenAPI documentation
+- **Real-time Dashboard** - HTMX-powered interface with live updates
+- **Catalog Browser** - Visual service catalog with category filtering
 
 ## Tech Stack
 
@@ -51,9 +62,23 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
-Open http://localhost:8000/docs for API documentation or http://localhost:8000/dashboard for the web interface.
+Open:
+- http://localhost:8000/docs - API documentation
+- http://localhost:8000/dashboard - Lead queue interface
+- http://localhost:8000/catalog - Service catalog browser
+
+### 4. Seed the Catalog
+
+```bash
+# Via API
+curl -X POST http://localhost:8000/services/seed
+
+# Or click "Seed Catalog" button in the catalog dashboard
+```
 
 ## API Endpoints
+
+### Lead Management
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -67,7 +92,40 @@ Open http://localhost:8000/docs for API documentation or http://localhost:8000/d
 | GET | `/queue` | Get prioritized queue |
 | POST | `/queue/reprioritize` | Auto-sort by score |
 | GET | `/queue/stats` | Queue metrics |
-| GET | `/dashboard` | Web interface |
+
+### Service Catalog
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/services` | List all services |
+| POST | `/services` | Create service |
+| GET | `/services/{id}` | Get single service |
+| PUT | `/services/{id}` | Update service |
+| DELETE | `/services/{id}` | Delete/deactivate service |
+| GET | `/services/categories` | List categories |
+| POST | `/services/categories` | Create category |
+| GET | `/services/stats` | Catalog statistics |
+| POST | `/services/seed` | Seed default catalog |
+
+### Dashboard
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/dashboard` | Lead queue interface |
+| GET | `/catalog` | Service catalog browser |
+
+## Service Categories
+
+| Category | Services | Price Range |
+|----------|----------|-------------|
+| Hair | 41 | $5 - $250 |
+| Lashes & Brows | 37 | $0 - $400 |
+| Waxing | 23 | $11 - $90 |
+| Nails | 15 | $15 - $65 |
+| Massage & Body | 14 | $15 - $140 |
+| Skincare & Facials | 18 | $0 - $350 |
+| Makeup | 4 | $30 - $85 |
+| Consultations & Admin | 3 | $0 - $30 |
 
 ## Scoring Algorithm
 
@@ -97,6 +155,8 @@ salon-lead-queue/
 │   ├── models.py            # SQLAlchemy ORM models
 │   ├── schemas.py           # Pydantic validation
 │   ├── crud.py              # Database operations
+│   ├── data/
+│   │   └── catalog.py       # Service catalog seed data
 │   ├── services/
 │   │   ├── scoring.py       # Lead scoring algorithm
 │   │   └── prioritization.py # Queue management
@@ -104,12 +164,31 @@ salon-lead-queue/
 │   │   ├── health.py        # Health endpoints
 │   │   ├── leads.py         # Lead CRUD
 │   │   ├── queue.py         # Queue management
+│   │   ├── services.py      # Service catalog API
 │   │   └── dashboard.py     # HTML frontend
 │   └── templates/           # Jinja2 templates
 ├── requirements.txt
 ├── .env.example
 └── README.md
 ```
+
+## Data Models
+
+### Lead
+- Contact info (company, name, email, phone)
+- Scoring factors (value, urgency, tier, budget, strategic fit)
+- Queue management (score, position)
+- Status tracking and timestamps
+
+### MasterService
+- Category association
+- Name, duration, price
+- Bookable/active flags
+- Tags for filtering
+
+### StylistServiceSetting (v1)
+- Per-stylist price overrides
+- Enable/disable services per stylist
 
 ## Environment Variables
 
@@ -164,10 +243,18 @@ Restart=always
 WantedBy=multi-user.target
 ```
 
+## Roadmap
+
+- [ ] Stylist profiles and authentication
+- [ ] Client booking system
+- [ ] Calendar/availability management
+- [ ] Payment integration
+- [ ] SMS/email notifications
+
 ## License
 
 MIT License - feel free to use this project for any purpose.
 
 ## Author
-Rashad
-Built with FastAPI and PostgreSQL.
+
+Built with FastAPI, PostgreSQL, and HTMX.
